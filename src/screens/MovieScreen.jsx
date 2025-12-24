@@ -12,21 +12,36 @@ import { Heart, ArrowLeft2 } from 'iconsax-react-nativejs';
 import Cast from './../components/Cast';
 import MovieList from '../components/MovieList';
 import LinearGradient from 'react-native-linear-gradient';
-import { movies } from './../assets/movies';
 import Loader from '../components/Loader';
+import { image500, movieApi } from '../api/moviedb';
+import { setGenres } from './../utils/genres';
 
 const MovieScreen = ({ route, navigation }) => {
   const { movie } = route.params;
+
+  const [cast, setCast] = useState([]);
+  const [similar, setSimilar] = useState([]);
   const [isFavorite, toggleFavorite] = useState(false);
-  const [similarMovies, setSimilarMovies] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fake loading
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const fetchMovieData = async () => {
+      try {
+        // 🎭 CAST
+        const creditsData = await movieApi.getMovieCredits(movie.id);
+        setCast(creditsData.cast.slice(0, 12)); // 🔥 Top 12 cast
+        // 🎬 SIMILAR MOVIES
+        const similarMovies = await movieApi.getSimilarMovies(movie.id);
+        setSimilar(similarMovies.results.slice(0, 8));
+      } catch (error) {
+        console.log('CAST API ERROR:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMovieData();
+  }, [movie.id]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -36,7 +51,12 @@ const MovieScreen = ({ route, navigation }) => {
         <ScrollView style={styles.container}>
           {/* POSTER */}
           <View style={styles.hero}>
-            <Image source={{ uri: movie.poster }} style={styles.poster} />
+            {movie.poster_path && (
+              <Image
+                source={{ uri: image500(movie.poster_path) }}
+                style={styles.poster}
+              />
+            )}
             {/* GRADIENT */}
             <LinearGradient
               colors={[
@@ -74,21 +94,26 @@ const MovieScreen = ({ route, navigation }) => {
             <Text style={styles.title}>{movie.title}</Text>
             {/* status, release, runtime */}
 
-            <Text style={styles.status}>{movie.status} * 2021 * 130 min</Text>
+            <Text style={styles.status}>
+              {movie.release_date} ⭐ {movie.vote_average?.toFixed(1)}{' '}
+            </Text>
 
             {/* genres */}
-            <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-              <Text style={styles.genres}>Action * </Text>
-              <Text style={styles.genres}>Adventure * </Text>
-              <Text style={styles.genres}>Drama</Text>
+            <View style={styles.status}>
+              
+                <Text style={styles.genres}>
+                  * GEnressss *
+                </Text>
+              
             </View>
+
             {/* description */}
-            <Text style={styles.description}>{movie.description}</Text>
+            <Text style={styles.description}>{movie.overview}</Text>
           </View>
           {/* cast */}
-          <Cast cast={movie.cast} />
+          <Cast cast={cast} />
           {/* similar movies */}
-          <MovieList title="Similar Movies" hideSeeAll={true} data={movies} />
+          <MovieList title="Similar Movies" hideSeeAll={true} data={similar} />
         </ScrollView>
       )}
     </View>

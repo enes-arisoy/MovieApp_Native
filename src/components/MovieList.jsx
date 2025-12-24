@@ -8,10 +8,12 @@ import {
 } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { image185} from '../api/moviedb';
 
 const MovieList = ({ title, data, hideSeeAll }) => {
   const navigation = useNavigation();
-  return (
+  
+    return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
@@ -26,18 +28,23 @@ const MovieList = ({ title, data, hideSeeAll }) => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 15 }}
       >
-        {data?.map((movie, index) => {
+        {data?.map((item, index) => {
+          
           return (
             <TouchableWithoutFeedback
               key={index}
-              onPress={() => navigation.navigate('Movie', { movie: movie })}
+              onPress={() => navigation.push('Movie', { movie: item })}
             >
               <View style={{ marginRight: 15 }}>
                 <Image
-                  source={{ uri: movie.poster }}
+                  source={{ uri: image185(item.poster_path) }}
                   style={{ width: 120, height: 180, borderRadius: 10 }}
                 />
-                <Text style={styles.movieTitle}>{movie.title}</Text>
+                 <Text style={styles.movieTitle}>
+                {item.title?.length > 14
+                  ? item.title.slice(0, 14) + '...'
+                  : item.title}
+              </Text>
               </View>
             </TouchableWithoutFeedback>
           );
@@ -51,8 +58,7 @@ export default MovieList;
 
 const styles = {
   container: {
-    marginTop: 10,
-    marginBottom: 20,
+    marginVertical: 15,
   },
   header: {
     flexDirection: 'row',

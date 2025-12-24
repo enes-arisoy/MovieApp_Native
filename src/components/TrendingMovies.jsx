@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-
+import { image500 } from './../api/moviedb';
 
 export default function TrendingMovies({ title, data }) {
   const navigation = useNavigation();
@@ -24,20 +24,25 @@ export default function TrendingMovies({ title, data }) {
           <TouchableOpacity
             onPress={() => navigation.navigate('Movie', { movie: item })}
           >
-            <MovieCard movies={item} />
+            <MovieCard item={item} />
           </TouchableOpacity>
         )}
       />
     </View>
   );
 }
-const MovieCard = ({ movies }) => {
-  if (!movies) return null;
+const MovieCard = ({ item }) => {
+  
+
+  if (!item) return null;
   return (
     <View style={styles.card}>
-      <Image source={{ uri: movies.poster }} style={styles.image} />
-      <Text style={styles.title}>{movies.title}</Text>
-      <Text style={styles.rating}>Imdb: {movies.rating}</Text>
+      <Image
+        source={{ uri: image500(item.poster_path) }}
+        style={styles.image}
+      />
+
+      <Text style={styles.rating}>{item.vote_average.toFixed(1)}</Text>
     </View>
   );
 };
@@ -49,27 +54,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginLeft: 20,
   },
-  title: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    color: 'white',
-    backgroundColor: 'rgba(0, 0, 0, 0.88)',
-    padding: 5,
-    borderRadius: 10,
-    fontSize: 16,
-    
-  },
   rating: {
     position: 'absolute',
-    bottom: 5,
+    top: 5,
     right: 5,
     color: 'white',
-    fontSize: 12,
-    marginLeft: 10,
-     backgroundColor: 'rgba(0, 0, 0, 0.88)',
+    fontSize: 16,
+    backgroundColor:"#000000ff",
     padding: 5,
-    borderRadius: 10,
+    borderRadius: 10
   },
 
   card: {

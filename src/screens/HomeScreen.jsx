@@ -7,24 +7,46 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { movies } from './../assets/movies';
 import TrendingMovies from './../components/TrendingMovies';
 import MovieList from './../components/MovieList';
 import { HamburgerMenu, SearchNormal1 } from 'iconsax-react-nativejs';
 import Loader from '../components/Loader';
+import { movieApi } from './../api/moviedb';
 
 const HomeScreen = ({ navigation }) => {
-  const [trending, setTrending] = useState([1, 2, 3]);
-  const [upcoming, setUpcoming] = useState();
-  const [topRated, setTopRated] = useState();
+  const [trending, setTrending] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
+  const [topRated, setTopRated] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      // fake loading
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
-    }, []);
+  const fetchMovies = async () => {
+    try {
+      const [
+        trendingData,
+        upcomingData,
+        topRatedData,
+      ] = await Promise.all([
+        movieApi.getTrendingMovies(),
+        movieApi.getUpcomingMovies(),
+        movieApi.getTopRatedMovies(),
+      ]);
+
+      setTrending(trendingData?.results || []);
+      setUpcoming(upcomingData?.results || []);
+      setTopRated(topRatedData?.results || []);
+
+    } catch (error) {
+      console.log('API ERROR:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMovies();
+}, []);
+
 
   return (
     <View style={styles.container}>
@@ -47,9 +69,9 @@ const HomeScreen = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 10 }}
         >
-          <TrendingMovies title="🔥 Trending" data={movies} />
-          <MovieList title="🎬 Upcoming" data={movies} />
-          <MovieList title="🎬 Top Rated" data={movies} />
+          <TrendingMovies title="🔥 Trending" data={trending} />
+          <MovieList title="🎬 Upcoming" data={upcoming} />
+          <MovieList title="🎬 Top Rated" data={topRated} />
         </ScrollView>
       )}
     </View>

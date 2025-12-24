@@ -58,7 +58,7 @@ useEffect(() => {
             <View style={styles.details}>
               <View style={styles.profile}>
                 <Image
-                  source={{ uri: person.profile }}
+                  source={{ uri: person.profile_path }}
                   style={{ height: height * 0.4, width: width * 0.74 }}
                 />
               </View>

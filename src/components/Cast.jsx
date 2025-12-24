@@ -8,8 +8,12 @@ import {
 } from 'react-native';
 import React, { memo } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { image185 } from './../api/moviedb';
 
 const Cast = ({ cast = [] }) => {
+
+  if (!cast.length) return null;
+  
   const navigation = useNavigation();
 
   const renderItem = ({ item }) => {
@@ -21,7 +25,7 @@ const Cast = ({ cast = [] }) => {
         style={styles.castItem}
         onPress={() => navigation.navigate('Person', { person: item })}
       >
-        <Image source={{ uri: item.profile }} style={styles.avatar} />
+        <Image source={{ uri: image185(item.profile_path) }} style={styles.avatar} />
 
         <Text style={styles.name}>
           {name.length > 10 ? name.slice(0, 10) + '...' : name}
@@ -38,7 +42,7 @@ const Cast = ({ cast = [] }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Top Cast</Text>
+      <Text style={styles.title}>🎭 Top Cast</Text>
 
       <FlatList
         data={cast}
