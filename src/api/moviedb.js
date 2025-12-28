@@ -21,9 +21,7 @@ const apiClient = axios.create({
   },
 });
 
-/**
- * API çağrıları
- */
+/* API çağrıları */
 export const movieApi = {
   // Trending Movies
   getTrendingMovies: async () => {
@@ -44,21 +42,32 @@ export const movieApi = {
   },
 
   // Similar Movies
-  getSimilarMovies: async (movieId) => {
+  getSimilarMovies: async movieId => {
     const response = await apiClient.get(`/movie/${movieId}/similar`);
     return response.data;
   },
 
   // Movie Credits
-  getMovieCredits: async (movieId) => {
+  getMovieCredits: async movieId => {
     const response = await apiClient.get(`/movie/${movieId}/credits`);
     return response.data;
   },
 
-  // Movie Genres
-  getGenres: async () => {
-    const response = await apiClient.get('/genre/movie/list');
+  // Movie Details
+  getDetails: async movieId => {
+    const response = await apiClient.get(`/movie/${movieId}`);
     return response.data;
   },
-  
+
+  // Person Details
+  getPersonDetails: async personId => {
+    const response = await apiClient.get(`/person/${personId}`);
+    return response.data;
+  },
+
+  // Person Movies
+  getPersonMovies: async personId => {
+    const response = await apiClient.get(`/person/${personId}/movie_credits`);
+    return response.data;
+  },
 };

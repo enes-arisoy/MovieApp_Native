@@ -14,13 +14,13 @@ import MovieList from '../components/MovieList';
 import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../components/Loader';
 import { image500, movieApi } from '../api/moviedb';
-import { setGenres } from './../utils/genres';
 
 const MovieScreen = ({ route, navigation }) => {
   const { movie } = route.params;
 
   const [cast, setCast] = useState([]);
   const [similar, setSimilar] = useState([]);
+  const [detail, setDetail] = useState(null);
   const [isFavorite, toggleFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -29,10 +29,13 @@ const MovieScreen = ({ route, navigation }) => {
       try {
         // 🎭 CAST
         const creditsData = await movieApi.getMovieCredits(movie.id);
-        setCast(creditsData.cast.slice(0, 12)); // 🔥 Top 12 cast
+        setCast(creditsData.cast.slice(0, 9)); // 🔥 Top 9 cast
         // 🎬 SIMILAR MOVIES
         const similarMovies = await movieApi.getSimilarMovies(movie.id);
         setSimilar(similarMovies.results.slice(0, 8));
+        // Details
+        const details = await movieApi.getDetails(movie.id);
+        setDetail(details);
       } catch (error) {
         console.log('CAST API ERROR:', error);
       } finally {
@@ -95,16 +98,17 @@ const MovieScreen = ({ route, navigation }) => {
             {/* status, release, runtime */}
 
             <Text style={styles.status}>
-              {movie.release_date} ⭐ {movie.vote_average?.toFixed(1)}{' '}
+              {detail.status} • {detail.release_date} • {detail.runtime} min
             </Text>
 
             {/* genres */}
             <View style={styles.status}>
-              
-                <Text style={styles.genres}>
-                  * GEnressss *
+              {detail?.genres?.map((genre, index) => (
+                <Text key={index} style={styles.genres}>
+                  {genre.name}
+                  {index !== detail.genres.length - 1 ? ' ⭐ ' : ''}
                 </Text>
-              
+              ))}
             </View>
 
             {/* description */}
@@ -149,19 +153,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginVertical: 10,
+    textAlign: "center"
   },
   details: {
     padding: 15,
     alignItems: 'center',
   },
   status: {
-    color: '#ccc',
+    flexDirection: 'row',
+    color: '#696868ff',
     fontSize: 14,
     marginBottom: 10,
   },
   genres: {
-    color: '#ccc',
+    color: '#878787ff',
     fontSize: 14,
     marginBottom: 5,
     flexDirection: 'row',

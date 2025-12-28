@@ -10,31 +10,36 @@ import React, { memo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { image185 } from './../api/moviedb';
 
-const Cast = ({ cast = [] }) => {
-
+const Cast = ({ cast }) => {
   if (!cast.length) return null;
-  
+
   const navigation = useNavigation();
 
   const renderItem = ({ item }) => {
     const name = item.name ?? '';
     const character = item.character ?? '';
+    
 
     return (
       <TouchableOpacity
         style={styles.castItem}
-        onPress={() => navigation.navigate('Person', { person: item })}
+        onPress={() => navigation.navigate('Person', { item: item })}
       >
-        <Image source={{ uri: image185(item.profile_path) }} style={styles.avatar} />
+        <Image
+          source={
+          item?.profile_path
+            ? { uri: image185(item.profile_path) }
+            : require('../assets/family/avatar.jpg')
+        }
+          style={styles.avatar}
+        />
 
         <Text style={styles.name}>
           {name.length > 10 ? name.slice(0, 10) + '...' : name}
         </Text>
 
         <Text style={styles.character}>
-          {character.length > 10
-            ? character.slice(0, 10) + '...'
-            : character}
+          {character.length > 10 ? character.slice(0, 10) + '...' : character}
         </Text>
       </TouchableOpacity>
     );
@@ -47,10 +52,9 @@ const Cast = ({ cast = [] }) => {
       <FlatList
         data={cast}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-        numColumns={3}
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={false}
+        keyExtractor={item => item.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
@@ -60,25 +64,26 @@ export default memo(Cast);
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    marginTop: 15,
     paddingHorizontal: 15,
   },
   title: {
     color: 'white',
     fontSize: 20,
-    fontWeight: 'bold',
     marginBottom: 10,
   },
   castItem: {
-    flex: 1,
+    flexDirection:"column",
     alignItems: 'center',
-    marginBottom: 15,
+marginRight: 16,
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 6,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderColor: "#cccc",
+    borderWidth: 1,
+    marginBottom: 3,
   },
   name: {
     color: '#fff',

@@ -14,7 +14,7 @@ const MovieList = ({ title, data, hideSeeAll }) => {
   const navigation = useNavigation();
   
     return (
-    <View style={styles.container}>
+    <View>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {!hideSeeAll && (
@@ -57,9 +57,7 @@ const MovieList = ({ title, data, hideSeeAll }) => {
 export default MovieList;
 
 const styles = {
-  container: {
-    marginVertical: 15,
-  },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

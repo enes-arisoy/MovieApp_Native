@@ -11,27 +11,39 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, ArrowLeft2 } from 'iconsax-react-nativejs';
 import MovieList from '../components/MovieList';
-import { movies } from './../assets/movies';
 import Loader from '../components/Loader';
+import { image185, image342, movieApi } from './../api/moviedb';
 
 const PersonScreen = ({ route, navigation }) => {
-  const { person } = route.params;
+  const { item } = route.params;
+  const [details, setDetails] = useState(null);
+  const [movies, setMovies] = useState(null);
   const [isFavorite, toggleFavorite] = useState(false);
-  const [personMovies, setPersonMovies] = useState([1, 2, 3, 4]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-    // fake loading
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
+  useEffect(() => {
+    const fetchPersonMovies = async () => {
+      try {
+        // Person Details
+        const personDetails = await movieApi.getPersonDetails(item.id);
+        setDetails(personDetails);
+console.log(personDetails)
+        // 🎬 Person MOVIES
+        const personMovies = await movieApi.getPersonMovies(item.id);
+        setMovies(personMovies.cast.slice(0, 8));
+      } catch (error) {
+        console.log('CAST API ERROR:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  
-  if (!person) {
+    fetchPersonMovies();
+  }, [item.id]);
+
+  if (!item) {
     return null;
   }
-  let { width, height } = Dimensions.get('screen');
   return (
     <View style={{ flex: 1 }}>
       {loading ? (
@@ -58,13 +70,18 @@ useEffect(() => {
             <View style={styles.details}>
               <View style={styles.profile}>
                 <Image
-                  source={{ uri: person.profile_path }}
-                  style={{ height: height * 0.4, width: width * 0.74 }}
+                  source={
+                    details?.profile_path
+                      ? { uri: image342(details.profile_path) }
+                      : require('../assets/family/avatar.jpg')
+                  }
+                  style={styles.profileImage}
+                  resizeMode="cover"
                 />
               </View>
             </View>
             <View style={{ marginTop: 6 }}>
-              <Text style={styles.name}>{person.name}</Text>
+              <Text style={styles.name}>{details.name}</Text>
               <Text
                 style={{
                   fontSize: 24,
@@ -72,20 +89,10 @@ useEffect(() => {
                   textAlign: 'center',
                 }}
               >
-                {person.character}
+                {item.character}
               </Text>
             </View>
-            <View
-              style={{
-                marginHorizontal: 15,
-                marginTop: 30,
-                padding: 10,
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                backgroundColor: '#454545ff',
-                borderRadius: 30,
-              }}
-            >
+            <View style={styles.profileDetails}>
               <View style={styles.characterDetails}>
                 <Text
                   style={{
@@ -96,7 +103,13 @@ useEffect(() => {
                 >
                   Gender
                 </Text>
-                <Text style={{ color: '#9f9f9fff' }}>Male</Text>
+                <Text style={{ color: '#9f9f9fff' }}>
+                  {details.gender === 2
+                    ? 'Male'
+                    : details.gender === 1
+                    ? 'Female'
+                    : 'N/A'}
+                </Text>
               </View>
 
               <View style={styles.characterDetails}>
@@ -109,7 +122,7 @@ useEffect(() => {
                 >
                   Birthday
                 </Text>
-                <Text style={{ color: '#9f9f9fff' }}>1964/09/02</Text>
+                <Text style={{ color: '#9f9f9fff' }}>{details.birthday}</Text>
               </View>
 
               <View style={styles.characterDetails}>
@@ -122,7 +135,9 @@ useEffect(() => {
                 >
                   Known for
                 </Text>
-                <Text style={{ color: '#9f9f9fff' }}>Acting</Text>
+                <Text style={{ color: '#9f9f9fff' }}>
+                  {details.known_for_department}
+                </Text>
               </View>
 
               <View style={{ alignItems: 'center' }}>
@@ -135,7 +150,7 @@ useEffect(() => {
                 >
                   Popularity
                 </Text>
-                <Text style={{ color: '#9f9f9fff' }}>70.32</Text>
+                <Text style={{ color: '#9f9f9fff' }}>{details.popularity}</Text>
               </View>
             </View>
 
@@ -143,19 +158,15 @@ useEffect(() => {
               <Text style={{ color: 'white', fontSize: 16, marginBottom: 5 }}>
                 Biography
               </Text>
-              <Text style={{ color: '#9f9f9fff' }}>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora
-                doloremque asperiores, temporibus totam magni atque eum pariatur
-                ratione sunt impedit dicta saepe sapiente perferendis labore
-                dolor veritatis quasi nisi ab? Magnam culpa incidunt illo
-                quaerat ex, aliquam quod sequi velit fugiat ullam sit illum amet
-                labore? Ratione, excepturi? Accusantium, eaque quaerat debitis
-                enim corporis ex earum odio distinctio quo nesciunt?
-              </Text>
+              <Text style={{ color: '#9f9f9fff' }}>{details.biography}</Text>
             </View>
 
-            {/* movies */}
-            <MovieList title={'Movies'} hideSeeAll={true} data={movies} />
+            {/* Person movies */}
+            <MovieList
+              title="🎬 Person Movies"
+              hideSeeAll={true}
+              data={movies}
+            />
           </View>
         </ScrollView>
       )}
@@ -185,23 +196,29 @@ const styles = StyleSheet.create({
   details: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 100,
+    marginTop: 80,
   },
   profile: {
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    borderWidth: 2,
-    borderColor: 'gray',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#fff',
-    shadowRadius: 40,
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.8,
-    elevation: 10,
-    marginBottom: 20,
+  width: 300,
+  height: 300,
+  borderRadius: 150,
+  overflow: 'hidden',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileDetails: {
+    marginHorizontal: 15,
+    marginTop:10,
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#454545ff',
+    borderRadius: 30,
   },
 
   name: {
