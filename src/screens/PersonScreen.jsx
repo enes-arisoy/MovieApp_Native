@@ -27,7 +27,7 @@ const PersonScreen = ({ route, navigation }) => {
         // Person Details
         const personDetails = await movieApi.getPersonDetails(item.id);
         setDetails(personDetails);
-console.log(personDetails)
+        console.log(personDetails);
         // 🎬 Person MOVIES
         const personMovies = await movieApi.getPersonMovies(item.id);
         setMovies(personMovies.cast.slice(0, 8));
@@ -68,17 +68,19 @@ console.log(personDetails)
           {/* Person DETAILS */}
           <View>
             <View style={styles.details}>
-              <View style={styles.profile}>
-                <Image
-                  source={
-                    details?.profile_path
-                      ? { uri: image342(details.profile_path) }
-                      : require('../assets/family/avatar.jpg')
-                  }
-                  style={styles.profileImage}
-                  resizeMode="cover"
-                />
-              </View>
+              
+                <View style={styles.profile}>
+                  <Image
+                    source={
+                      details?.profile_path
+                        ? { uri: image342(details.profile_path) }
+                        : require('../assets/family/avatar.jpg')
+                    }
+                    style={styles.profileImage}
+                    resizeMode="cover"
+                  />
+                </View>
+            
             </View>
             <View style={{ marginTop: 6 }}>
               <Text style={styles.name}>{details.name}</Text>
@@ -197,23 +199,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 80,
+    elevation: 15,
   },
+ 
   profile: {
-  width: 300,
-  height: 300,
-  borderRadius: 150,
-  overflow: 'hidden',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+    width: 280,
+    height: 280,
+    borderRadius: 300,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#cccccca5',
+    borderWidth: 2,
+  },
 
   profileImage: {
-    width: '100%',
-    height: '100%',
+    width: 280,
+    height: 280,
   },
   profileDetails: {
     marginHorizontal: 15,
-    marginTop:10,
+    marginTop: 10,
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-around',
