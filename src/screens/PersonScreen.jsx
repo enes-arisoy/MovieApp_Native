@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heart, ArrowLeft2 } from 'iconsax-react-nativejs';
 import MovieList from '../components/MovieList';
 import Loader from '../components/Loader';
-import { image185, image342, movieApi } from './../api/moviedb';
+import { image342, movieApi } from './../api/moviedb';
 
 const PersonScreen = ({ route, navigation }) => {
   const { item } = route.params;

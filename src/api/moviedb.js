@@ -70,4 +70,15 @@ export const movieApi = {
     const response = await apiClient.get(`/person/${personId}/movie_credits`);
     return response.data;
   },
+
+  // Search Movies
+  getSearchMovies: async query => {
+    const response = await apiClient.get('search/movie', {
+      params: {
+        query,
+        include_adult: false,
+      },
+    });
+    return response.data;
+  },
 };

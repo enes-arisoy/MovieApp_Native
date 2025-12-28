@@ -12,21 +12,37 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CloseCircle } from 'iconsax-react-nativejs';
 import { Image } from 'react-native';
-import { movies } from './../assets/movies';
 import Loader from '../components/Loader';
+import { image342, movieApi } from '../api/moviedb';
 
 const { width, height } = Dimensions.get('window');
 
 const SearchScreen = ({ navigation }) => {
-  const [results, setResults] = useState(movies);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // fake loading
-    setTimeout(() => {
+  if (query.length < 2) {
+    setResults([]);
+    setLoading(false);
+    return;
+  }
+
+  const timeoutId = setTimeout(async () => {
+    try {
+      setLoading(true); // ✅ sadece API giderken
+      const res = await movieApi.getSearchMovies(query);
+      setResults(res.results);
+    } catch (error) {
+      console.log('SEARCH ERROR:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  }, 500);
+
+  return () => clearTimeout(timeoutId);
+}, [query]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#171717ff' }}>
@@ -35,6 +51,8 @@ const SearchScreen = ({ navigation }) => {
           placeholder="Search Movie"
           placeholderTextColor={'lightgray'}
           style={styles.searchArea}
+          value={query}
+          onChangeText={setQuery}
         />
         <TouchableOpacity
           onPress={() => navigation.navigate('Home')}
@@ -53,7 +71,7 @@ const SearchScreen = ({ navigation }) => {
           contentContainerStyle={{ paddingHorizontal: 15 }}
         >
           <Text style={styles.results}>Results ({results.length})</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop:10 }}>
             {results.map((item, index) => {
               return (
                 <TouchableWithoutFeedback
@@ -62,8 +80,12 @@ const SearchScreen = ({ navigation }) => {
                 >
                   <View>
                     <Image
-                      source={{ uri: item.poster }}
-                      style={{ width: width * 0.44, height: height * 0.3 }}
+                      source={
+                        item?.poster_path
+                          ? { uri: image342(item.poster_path) }
+                          : require('../assets/family/blankmovie.jpg')
+                      }
+                      style={{ width: width * 0.44, height: height * 0.3, borderRadius:12 }}
                       resizeMode="cover"
                     />
                   </View>
